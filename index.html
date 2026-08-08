@@ -11,6 +11,42 @@
     <!-- Chart.js CDN for beautiful charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        :root {
+            --bg: #0a0b10;
+            --text: #e8edf5;
+            --card-bg: #13141c;
+            --border: #262837;
+            --bg-secondary: #1e1f2b;
+            --border-secondary: #2d2e3f;
+            --text-muted: #6b708a;
+            --text-dim: #898dab;
+            --text-dim2: #a5a9c4;
+            --text-faint: #565a72;
+            --bg-tertiary: #0e0f16;
+            --border-tertiary: #1f202d;
+            --divider: #1c1d2a;
+            --panel-bg: #16171f;
+            --panel-hover: #23243a;
+        }
+
+        body.light-theme {
+            --bg: #f4f4f9;
+            --text: #14151f;
+            --card-bg: #ffffff;
+            --border: #e2e2ec;
+            --bg-secondary: #eeeef5;
+            --border-secondary: #d9d9e6;
+            --text-muted: #6b708a;
+            --text-dim: #5a5f75;
+            --text-dim2: #45495e;
+            --text-faint: #7a7f95;
+            --bg-tertiary: #f8f8fc;
+            --border-tertiary: #e5e5f0;
+            --divider: #e8e8f2;
+            --panel-bg: #ffffff;
+            --panel-hover: #eeeaff;
+        }
+
         /* ---------- GLOBAL RESET & THEME ---------- */
         * {
             margin: 0;
@@ -20,8 +56,8 @@
         }
 
         body {
-            background: #0a0b10;
-            color: #e8edf5;
+            background: var(--bg);
+            color: var(--text);
             padding: 24px;
             min-height: 100vh;
             display: flex;
@@ -54,12 +90,12 @@
 
         .header h1 span {
             font-weight: 300;
-            color: #8b8fa3;
-            -webkit-text-fill-color: #8b8fa3;
+            color: var(--text-dim);
+            -webkit-text-fill-color: var(--text-dim);
         }
 
         .live-badge {
-            background: #1e1f2b;
+            background: var(--bg-secondary);
             padding: 8px 18px;
             border-radius: 40px;
             font-size: 13px;
@@ -67,7 +103,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            border: 1px solid #2d2e3f;
+            border: 1px solid var(--border-secondary);
         }
 
         .live-dot {
@@ -86,7 +122,7 @@
         .install-btn {
             display: none;
             background: linear-gradient(135deg, #a78bfa, #6c5ce7);
-            color: #0a0b10;
+            color: var(--bg);
             border: none;
             padding: 8px 18px;
             border-radius: 40px;
@@ -94,6 +130,30 @@
             font-weight: 700;
             cursor: pointer;
         }
+
+        .header-icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .offline-banner {
+            display: none;
+            background: #f59e0b20;
+            color: #f59e0b;
+            border: 1px solid #f59e0b40;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+        .offline-banner.show { display: block; }
 
         /* ---------- KPI CARDS ---------- */
         .kpi-grid {
@@ -104,8 +164,8 @@
         }
 
         .kpi-card {
-            background: #13141c;
-            border: 1px solid #262837;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 20px;
             padding: 20px 18px;
             transition: 0.2s;
@@ -121,7 +181,7 @@
             font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 0.6px;
-            color: #898dab;
+            color: var(--text-dim);
             margin-bottom: 8px;
         }
 
@@ -134,7 +194,7 @@
         .kpi-sub {
             font-size: 14px;
             font-weight: 400;
-            color: #6b708a;
+            color: var(--text-muted);
             margin-left: 4px;
         }
 
@@ -150,12 +210,12 @@
         .status-good { background: #10b98120; color: #10b981; }
         .status-warn { background: #f59e0b20; color: #f59e0b; }
         .status-danger { background: #ef444420; color: #ef4444; }
-        .status-na { background: #6b708a20; color: #6b708a; }
+        .status-na { background: var(--text-muted)20; color: var(--text-muted); }
 
         /* ---------- CHART SECTION ---------- */
         .chart-container {
-            background: #13141c;
-            border: 1px solid #262837;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 24px;
             padding: 24px 20px 16px;
             margin-bottom: 28px;
@@ -170,37 +230,37 @@
         }
 
         .chart-header h3 { font-weight: 600; font-size: 18px; }
-        .chart-header h3 small { font-weight: 400; color: #6b708a; font-size: 14px; margin-left: 10px; }
+        .chart-header h3 small { font-weight: 400; color: var(--text-muted); font-size: 14px; margin-left: 10px; }
 
         .chart-wrapper { position: relative; height: 240px; }
 
         /* ---------- GAME ANALYST (MATCH HISTORY) ---------- */
         .analyst-section {
-            background: #13141c;
-            border: 1px solid #262837;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 24px;
             padding: 24px 20px;
             margin-bottom: 28px;
         }
 
         .analyst-section h3 { font-weight: 600; font-size: 18px; margin-bottom: 16px; }
-        .analyst-section h3 small { font-weight: 400; color: #6b708a; font-size: 14px; margin-left: 10px; }
+        .analyst-section h3 small { font-weight: 400; color: var(--text-muted); font-size: 14px; margin-left: 10px; }
 
         .match-table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .match-table thead th {
             text-align: left;
             padding: 12px 8px 10px 0;
-            color: #6b708a;
+            color: var(--text-muted);
             font-weight: 500;
-            border-bottom: 1px solid #262837;
+            border-bottom: 1px solid var(--border);
             letter-spacing: 0.3px;
         }
-        .match-table tbody td { padding: 14px 8px 14px 0; border-bottom: 1px solid #1c1d2a; }
+        .match-table tbody td { padding: 14px 8px 14px 0; border-bottom: 1px solid var(--divider); }
         .match-table tbody tr:last-child td { border-bottom: none; }
 
         .badge-win { background: #10b98120; color: #10b981; padding: 2px 14px; border-radius: 40px; font-weight: 600; font-size: 12px; }
         .badge-loss { background: #ef444420; color: #ef4444; padding: 2px 14px; border-radius: 40px; font-weight: 600; font-size: 12px; }
-        .agent-tag { background: #2d2e3f; padding: 2px 12px; border-radius: 40px; font-size: 12px; font-weight: 500; }
+        .agent-tag { background: var(--border-secondary); padding: 2px 12px; border-radius: 40px; font-size: 12px; font-weight: 500; }
 
         /* ---------- SYSTEM RESOURCES ---------- */
         .resources-grid {
@@ -209,9 +269,9 @@
             gap: 18px;
         }
 
-        .resource-item { background: #0e0f16; border-radius: 16px; padding: 16px 18px; border: 1px solid #1f202d; }
+        .resource-item { background: var(--bg-tertiary); border-radius: 16px; padding: 16px 18px; border: 1px solid var(--border-tertiary); }
         .resource-item .label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-        .resource-item .label span:last-child { color: #a5a9c4; font-weight: 600; }
+        .resource-item .label span:last-child { color: var(--text-dim2); font-weight: 600; }
 
         .progress-track { width: 100%; height: 6px; background: #242637; border-radius: 10px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 0.4s ease; }
@@ -222,7 +282,7 @@
 
         .data-note {
             font-size: 12px;
-            color: #565a72;
+            color: var(--text-faint);
             margin-top: 14px;
             line-height: 1.5;
         }
@@ -264,8 +324,8 @@
             bottom: 0;
             width: 280px;
             max-width: 85vw;
-            background: #16171f;
-            border-right: 1px solid #262837;
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border);
             transform: translateX(-100%);
             transition: transform 0.28s ease;
             z-index: 1002;
@@ -291,7 +351,7 @@
         .turbo-close {
             background: none;
             border: none;
-            color: #6b708a;
+            color: var(--text-muted);
             font-size: 20px;
             cursor: pointer;
         }
@@ -305,12 +365,12 @@
             cursor: pointer;
             transition: background 0.15s;
         }
-        .turbo-list-item:hover { background: #1e1f2b; }
+        .turbo-list-item:hover { background: var(--bg-secondary); }
         .turbo-list-item .ic {
             width: 34px;
             height: 34px;
             border-radius: 10px;
-            background: #1e1f2b;
+            background: var(--bg-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -318,13 +378,13 @@
             flex-shrink: 0;
         }
         .turbo-list-item .txt { flex: 1; font-size: 14px; font-weight: 500; }
-        .turbo-list-item .sub { font-size: 11px; color: #6b708a; margin-top: 2px; }
+        .turbo-list-item .sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
         .turbo-switch {
             width: 38px;
             height: 22px;
             border-radius: 40px;
-            background: #2d2e3f;
+            background: var(--border-secondary);
             position: relative;
             flex-shrink: 0;
             transition: background 0.2s;
@@ -338,7 +398,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: #e8edf5;
+            background: var(--text);
             transition: transform 0.2s;
         }
         .turbo-switch.on::after { transform: translateX(16px); }
@@ -348,8 +408,8 @@
             margin: 16px 0;
             padding: 13px;
             border-radius: 14px;
-            border: 1px solid #2d2e3f;
-            background: #1e1f2b;
+            border: 1px solid var(--border-secondary);
+            background: var(--bg-secondary);
             color: #a78bfa;
             font-weight: 700;
             font-size: 14px;
@@ -358,7 +418,7 @@
         }
         .turbo-boost-btn.active {
             background: linear-gradient(135deg, #a78bfa, #6c5ce7);
-            color: #0a0b10;
+            color: var(--bg);
             border-color: transparent;
         }
 
@@ -369,7 +429,7 @@
             margin-top: 8px;
         }
         .turbo-grid-item {
-            background: #1e1f2b;
+            background: var(--bg-secondary);
             border-radius: 14px;
             padding: 12px 4px;
             display: flex;
@@ -379,17 +439,17 @@
             cursor: pointer;
             border: 1px solid transparent;
         }
-        .turbo-grid-item.on { border-color: #6c5ce7; background: #23243a; }
+        .turbo-grid-item.on { border-color: #6c5ce7; background: var(--panel-hover); }
         .turbo-grid-item .ic { font-size: 18px; }
-        .turbo-grid-item .lbl { font-size: 10px; color: #a5a9c4; text-align: center; line-height: 1.2; }
+        .turbo-grid-item .lbl { font-size: 10px; color: var(--text-dim2); text-align: center; line-height: 1.2; }
 
         .turbo-toast {
             position: fixed;
             bottom: 80px;
             left: 50%;
             transform: translateX(-50%) translateY(10px);
-            background: #1e1f2b;
-            border: 1px solid #2d2e3f;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-secondary);
             padding: 10px 18px;
             border-radius: 40px;
             font-size: 13px;
@@ -399,140 +459,6 @@
             z-index: 1003;
         }
         .turbo-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ---------- CHAT AI ---------- */
-        .chat-fab {
-            position: fixed;
-            right: 18px;
-            bottom: 18px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: #13141c;
-            border: 1px solid #262837;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        .chat-panel {
-            position: fixed;
-            right: 18px;
-            bottom: 82px;
-            width: 340px;
-            max-width: 90vw;
-            height: 480px;
-            max-height: 70vh;
-            background: #13141c;
-            border: 1px solid #262837;
-            border-radius: 20px;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 1002;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-        .chat-panel.open { display: flex; }
-
-        .chat-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            border-bottom: 1px solid #262837;
-            flex-shrink: 0;
-        }
-        .chat-head .title { font-weight: 700; font-size: 14px; }
-        .chat-head .title small { display: block; font-weight: 400; color: #6b708a; font-size: 11px; margin-top: 2px; }
-        .chat-head-btns { display: flex; gap: 8px; }
-        .chat-icon-btn {
-            background: #1e1f2b;
-            border: none;
-            color: #a5a9c4;
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .chat-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .chat-msg { max-width: 85%; padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
-        .chat-msg.user { align-self: flex-end; background: linear-gradient(135deg, #a78bfa, #6c5ce7); color: #0a0b10; border-bottom-right-radius: 4px; }
-        .chat-msg.ai { align-self: flex-start; background: #1e1f2b; border-bottom-left-radius: 4px; }
-        .chat-msg.system { align-self: center; color: #6b708a; font-size: 11px; text-align: center; }
-
-        .chat-input-row {
-            display: flex;
-            gap: 8px;
-            padding: 12px;
-            border-top: 1px solid #262837;
-            flex-shrink: 0;
-        }
-        .chat-input-row input {
-            flex: 1;
-            background: #1e1f2b;
-            border: 1px solid #2d2e3f;
-            border-radius: 40px;
-            padding: 10px 16px;
-            color: #e8edf5;
-            font-size: 13px;
-            outline: none;
-        }
-        .chat-input-row button {
-            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
-            border: none;
-            color: #0a0b10;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            font-size: 15px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .chat-input-row button:disabled { opacity: 0.5; }
-
-        .chat-settings {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
-        }
-        .chat-settings label { font-size: 12px; color: #a5a9c4; }
-        .chat-settings input, .chat-settings select {
-            background: #1e1f2b;
-            border: 1px solid #2d2e3f;
-            border-radius: 10px;
-            padding: 9px 12px;
-            color: #e8edf5;
-            font-size: 13px;
-            outline: none;
-        }
-        .chat-settings .save-btn {
-            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
-            border: none;
-            color: #0a0b10;
-            font-weight: 700;
-            padding: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-top: 4px;
-        }
-        .chat-settings .note { font-size: 11px; color: #565a72; line-height: 1.5; }
-        .chat-settings .clear-key { background: none; border: 1px solid #2d2e3f; color: #ef4444; padding: 8px; border-radius: 10px; font-size: 12px; cursor: pointer; }
 
         /* ---------- RESPONSIVE ---------- */
         @media (max-width: 700px) {
@@ -551,34 +477,38 @@
         <!-- HEADER -->
         <div class="header">
             <h1>🎮 Zyen Hub <span>· Game Analytics</span></h1>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <button class="install-btn" id="installBtn">⬇ Install App</button>
-                <div class="live-badge">
-                    <span class="live-dot"></span>
-                    <span>Live Device Data</span>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button class="header-icon-btn" id="langToggle" title="Switch language">🇵🇭 TL</button>
+                <button class="header-icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+                <button class="install-btn" id="installBtn" data-i18n="installBtn">⬇ Install App</button>
+                <div class="live-badge" id="liveBadge">
+                    <span class="live-dot" id="liveDot"></span>
+                    <span id="liveBadgeText" data-i18n="liveBadge">Live Device Data</span>
                 </div>
             </div>
         </div>
 
+        <div class="offline-banner" id="offlineBanner">📡 <span data-i18n="offlineMsg">You're offline — showing cached data</span></div>
+
         <!-- KPI CARDS -->
         <div class="kpi-grid" id="kpiGrid">
             <div class="kpi-card">
-                <div class="kpi-label">📊 FPS (this page)</div>
+                <div class="kpi-label" data-i18n="kpiFps">📊 FPS (this page)</div>
                 <div class="kpi-value" id="fpsValue">-- <span class="kpi-sub">fps</span></div>
                 <span class="kpi-status status-na" id="fpsStatus">Measuring…</span>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">🌐 Ping (real)</div>
+                <div class="kpi-label" data-i18n="kpiPing">🌐 Ping (real)</div>
                 <div class="kpi-value" id="pingValue">-- <span class="kpi-sub">ms</span></div>
                 <span class="kpi-status status-na" id="pingStatus">Measuring…</span>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">🔋 Battery</div>
+                <div class="kpi-label" data-i18n="kpiBatt">🔋 Battery</div>
                 <div class="kpi-value" id="battValue">-- <span class="kpi-sub">%</span></div>
                 <span class="kpi-status status-na" id="battStatus">Checking…</span>
             </div>
             <div class="kpi-card">
-                <div class="kpi-label">🧠 Device Memory</div>
+                <div class="kpi-label" data-i18n="kpiMem">🧠 Device Memory</div>
                 <div class="kpi-value" id="memValue">-- <span class="kpi-sub">GB</span></div>
                 <span class="kpi-status status-na" id="memStatus">Checking…</span>
             </div>
@@ -587,8 +517,8 @@
         <!-- CHART -->
         <div class="chart-container">
             <div class="chart-header">
-                <h3>📈 Performance Over Time <small>Real FPS &amp; Ping</small></h3>
-                <span style="font-size:13px; color:#6b708a;">Last 30 samples</span>
+                <h3 data-i18n="chartTitle">📈 Performance Over Time <small data-i18n="chartSub">Real FPS &amp; Ping</small></h3>
+                <span style="font-size:13px; color:var(--text-muted);" data-i18n="chartSamples">Last 30 samples</span>
             </div>
             <div class="chart-wrapper">
                 <canvas id="performanceChart"></canvas>
@@ -597,15 +527,15 @@
 
         <!-- GAME ANALYST (MATCH HISTORY) -->
         <div class="analyst-section">
-            <h3>⚔️ Match Analyst <small>Example data — not connected to a game yet</small></h3>
+            <h3 data-i18n="matchTitle">⚔️ Match Analyst <small data-i18n="matchSub">Example data — not connected to a game yet</small></h3>
             <table class="match-table">
                 <thead>
                     <tr>
-                        <th>Match</th>
-                        <th>Agent</th>
-                        <th>K / D / A</th>
-                        <th>Duration</th>
-                        <th>Result</th>
+                        <th data-i18n="thMatch">Match</th>
+                        <th data-i18n="thAgent">Agent</th>
+                        <th data-i18n="thKda">K / D / A</th>
+                        <th data-i18n="thDuration">Duration</th>
+                        <th data-i18n="thResult">Result</th>
                     </tr>
                 </thead>
                 <tbody id="matchBody"></tbody>
@@ -615,20 +545,20 @@
         <!-- SYSTEM RESOURCES -->
         <div class="resources-grid">
             <div class="resource-item">
-                <div class="label"><span>🔋 Battery Level</span><span id="battFillLabel">--%</span></div>
+                <div class="label"><span data-i18n="resBatt">🔋 Battery Level</span><span id="battFillLabel">--%</span></div>
                 <div class="progress-track"><div class="progress-fill fill-purple" id="battFill" style="width:0%;"></div></div>
             </div>
             <div class="resource-item">
-                <div class="label"><span>💾 Storage Used</span><span id="storageLabel">--%</span></div>
+                <div class="label"><span data-i18n="resStorage">💾 Storage Used</span><span id="storageLabel">--%</span></div>
                 <div class="progress-track"><div class="progress-fill fill-green" id="storageFill" style="width:0%;"></div></div>
             </div>
             <div class="resource-item">
-                <div class="label"><span>📶 Network Speed</span><span id="netLabel">-- Mbps</span></div>
+                <div class="label"><span data-i18n="resNet">📶 Network Speed</span><span id="netLabel">-- Mbps</span></div>
                 <div class="progress-track"><div class="progress-fill fill-orange" id="netFill" style="width:0%;"></div></div>
             </div>
         </div>
 
-        <p class="data-note">
+        <p class="data-note" data-i18n="dataNote">
             FPS, Ping, Battery, Device Memory, Storage, and Network Speed are read live from your browser and device.
             Some values may show "N/A" if your browser doesn't support that API (common on iOS Safari).
             Match history above is sample data only.
@@ -658,10 +588,21 @@
 
         <div class="turbo-list-item" id="monitorItem">
             <div class="ic">📊</div>
-            <div class="txt">Monitor performance<div class="sub">Jump to live chart</div></div>
+            <div class="txt" data-i18n="monitorTxt">Monitor performance<div class="sub" data-i18n="monitorSub">Jump to live chart</div></div>
         </div>
 
-        <button class="turbo-boost-btn" id="turboBoostBtn">Boost</button>
+        <div class="turbo-list-item" id="exportItem">
+            <div class="ic">📤</div>
+            <div class="txt" data-i18n="exportTxt">Export performance data<div class="sub" data-i18n="exportSub">Download as CSV</div></div>
+        </div>
+
+        <div class="turbo-list-item" id="notifItem">
+            <div class="ic">🔔</div>
+            <div class="txt" data-i18n="notifTxt">Push notifications<div class="sub" id="notifSub" data-i18n="notifSubOff">Off</div></div>
+            <div class="turbo-switch" id="notifSwitch"></div>
+        </div>
+
+        <button class="turbo-boost-btn" id="turboBoostBtn" data-i18n="boostBtn">Boost</button>
 
         <div class="turbo-grid">
             <div class="turbo-grid-item" id="gridClearMem">
@@ -683,47 +624,6 @@
         </div>
     </div>
     <div class="turbo-toast" id="turboToast"></div>
-
-    <!-- CHAT AI -->
-    <button class="chat-fab" id="chatFab" aria-label="Open AI Chat">💬</button>
-    <div class="chat-panel" id="chatPanel">
-        <div class="chat-head">
-            <div class="title">🤖 Zyen AI <small id="chatModelLabel">Ask anything</small></div>
-            <div class="chat-head-btns">
-                <button class="chat-icon-btn" id="chatSettingsBtn" title="Settings">⚙️</button>
-                <button class="chat-icon-btn" id="chatCloseBtn" title="Close">✕</button>
-            </div>
-        </div>
-
-        <div class="chat-body" id="chatBody">
-            <div class="chat-msg system">Set your DeepSeek API key in ⚙️ settings to start chatting.</div>
-        </div>
-
-        <div class="chat-input-row" id="chatInputRow">
-            <input type="text" id="chatInput" placeholder="Ask anything…" />
-            <button id="chatSendBtn">➤</button>
-        </div>
-
-        <div class="chat-settings" id="chatSettingsPanel" style="display:none;">
-            <label>DeepSeek API Key</label>
-            <input type="password" id="chatApiKeyInput" placeholder="sk-..." autocomplete="off" />
-
-            <label>Model</label>
-            <select id="chatModelSelect">
-                <option value="deepseek-v4-flash">deepseek-v4-flash (fast, cheap)</option>
-                <option value="deepseek-v4-pro">deepseek-v4-pro (top reasoning)</option>
-            </select>
-
-            <button class="save-btn" id="chatSaveKeyBtn">Save</button>
-            <button class="clear-key" id="chatClearKeyBtn">Remove saved key</button>
-
-            <p class="note">
-                Your key is saved only in this browser's local storage — never sent anywhere except directly to
-                api.deepseek.com when you send a message. Don't share this file after entering your key
-                (localStorage stays on this device only, so this is just a precaution).
-            </p>
-        </div>
-    </div>
 
     <script>
         // --------------------------------------------------------------
@@ -751,6 +651,134 @@
                 navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW registration failed', err));
             });
         }
+
+        // --------------------------------------------------------------
+        // 0b. THEME TOGGLE (dark / light — real, persisted)
+        // --------------------------------------------------------------
+        const themeToggle = document.getElementById('themeToggle');
+        let currentTheme = localStorage.getItem('zyen_theme') || 'dark';
+
+        function applyTheme() {
+            document.body.classList.toggle('light-theme', currentTheme === 'light');
+            themeToggle.textContent = currentTheme === 'light' ? '☀️' : '🌙';
+        }
+        applyTheme();
+
+        themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('zyen_theme', currentTheme);
+            applyTheme();
+        });
+
+        // --------------------------------------------------------------
+        // 0c. LANGUAGE TOGGLE (English / Tagalog — real, persisted)
+        // --------------------------------------------------------------
+        const translations = {
+            en: {
+                installBtn: '⬇ Install App',
+                liveBadge: 'Live Device Data',
+                offlineMsg: "You're offline — showing cached data",
+                kpiFps: '📊 FPS (this page)',
+                kpiPing: '🌐 Ping (real)',
+                kpiBatt: '🔋 Battery',
+                kpiMem: '🧠 Device Memory',
+                chartTitle: '📈 Performance Over Time',
+                chartSub: 'Real FPS & Ping',
+                chartSamples: 'Last 30 samples',
+                matchTitle: '⚔️ Match Analyst',
+                matchSub: 'Example data — not connected to a game yet',
+                thMatch: 'Match', thAgent: 'Agent', thKda: 'K / D / A', thDuration: 'Duration', thResult: 'Result',
+                resBatt: '🔋 Battery Level',
+                resStorage: '💾 Storage Used',
+                resNet: '📶 Network Speed',
+                dataNote: 'FPS, Ping, Battery, Device Memory, Storage, and Network Speed are read live from your browser and device. Some values may show "N/A" if your browser doesn\'t support that API (common on iOS Safari). Match history above is sample data only.',
+                monitorTxt: 'Monitor performance',
+                monitorSub: 'Jump to live chart',
+                exportTxt: 'Export performance data',
+                exportSub: 'Download as CSV',
+                notifTxt: 'Push notifications',
+                notifSubOff: 'Off',
+                notifSubOn: 'On · battery & storage alerts',
+                boostBtn: 'Boost',
+                pausedBadge: 'Paused'
+            },
+            tl: {
+                installBtn: '⬇ I-install ang App',
+                liveBadge: 'Live na Device Data',
+                offlineMsg: 'Offline ka — cached data ang ipinapakita',
+                kpiFps: '📊 FPS (ng page na ito)',
+                kpiPing: '🌐 Ping (totoo)',
+                kpiBatt: '🔋 Baterya',
+                kpiMem: '🧠 Memory ng Device',
+                chartTitle: '📈 Performance sa Paglipas ng Oras',
+                chartSub: 'Totoong FPS at Ping',
+                chartSamples: 'Huling 30 sample',
+                matchTitle: '⚔️ Match Analyst',
+                matchSub: 'Sample data lang — hindi pa konektado sa laro',
+                thMatch: 'Laban', thAgent: 'Agent', thKda: 'K / D / A', thDuration: 'Tagal', thResult: 'Resulta',
+                resBatt: '🔋 Antas ng Baterya',
+                resStorage: '💾 Nagamit na Storage',
+                resNet: '📶 Bilis ng Network',
+                dataNote: 'Totoong data mula sa browser at device mo ang FPS, Ping, Baterya, Device Memory, Storage, at Network Speed. Baka lumabas na "N/A" ang ibang value kung hindi supported ng browser mo (madalas sa iOS Safari). Sample data lang ang match history sa itaas.',
+                monitorTxt: 'Monitor ng performance',
+                monitorSub: 'Pumunta sa live chart',
+                exportTxt: 'I-export ang performance data',
+                exportSub: 'I-download bilang CSV',
+                notifTxt: 'Push notifications',
+                notifSubOff: 'Naka-off',
+                notifSubOn: 'Naka-on · alerto sa baterya at storage',
+                boostBtn: 'Boost',
+                pausedBadge: 'Naka-pause'
+            }
+        };
+
+        const langToggle = document.getElementById('langToggle');
+        let currentLang = localStorage.getItem('zyen_lang') || 'en';
+
+        function applyLanguage() {
+            const dict = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach((el) => {
+                const key = el.getAttribute('data-i18n');
+                if (!dict[key]) return;
+                // Preserve nested <small>/<span> children — only replace direct text, unless element has no element children
+                if (el.children.length === 0) {
+                    el.textContent = dict[key];
+                } else {
+                    // Replace only the first text node (keeps nested tags like <small> intact)
+                    for (const node of el.childNodes) {
+                        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                            node.textContent = dict[key] + ' ';
+                            break;
+                        }
+                    }
+                }
+            });
+            langToggle.textContent = currentLang === 'tl' ? '🇵🇭 TL' : '🇬🇧 EN';
+        }
+        applyLanguage();
+
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'tl' ? 'en' : 'tl';
+            localStorage.setItem('zyen_lang', currentLang);
+            applyLanguage();
+            applyAutoClearStateSafe();
+            applyNotifSubSafe();
+        });
+
+        // helpers defined later reference these guarded wrappers so ordering doesn't break
+        function applyAutoClearStateSafe() { if (typeof applyAutoClearState === 'function') applyAutoClearState(); }
+        function applyNotifSubSafe() { if (typeof updateNotifSub === 'function') updateNotifSub(); }
+
+        // --------------------------------------------------------------
+        // 0d. OFFLINE INDICATOR (real — navigator.onLine)
+        // --------------------------------------------------------------
+        const offlineBanner = document.getElementById('offlineBanner');
+        function updateOnlineStatus() {
+            offlineBanner.classList.toggle('show', !navigator.onLine);
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
 
         // --------------------------------------------------------------
         // 1. MOCK MATCH HISTORY (clearly labeled as sample data)
@@ -1131,11 +1159,11 @@
         });
 
         // --- Grid: DND (real: pauses all live network sampling) ---
-        const liveBadgeText = document.querySelector('.live-badge span:last-child');
+        const liveBadgeText = document.getElementById('liveBadgeText');
         document.getElementById('gridDnd').addEventListener('click', () => {
             samplingPaused = !samplingPaused;
             document.getElementById('gridDnd').classList.toggle('on', samplingPaused);
-            liveBadgeText.textContent = samplingPaused ? 'Paused' : 'Live Device Data';
+            liveBadgeText.textContent = samplingPaused ? translations[currentLang].pausedBadge : translations[currentLang].liveBadge;
             showToast(samplingPaused ? 'Live updates paused' : 'Live updates resumed');
         });
 
@@ -1152,131 +1180,99 @@
             showToast(`Update speed: ${speedLbl.textContent}`);
         });
 
-        // ================================================================
-        // CHAT AI (DeepSeek API)
-        // ================================================================
-        const chatFab = document.getElementById('chatFab');
-        const chatPanel = document.getElementById('chatPanel');
-        const chatCloseBtn = document.getElementById('chatCloseBtn');
-        const chatBody = document.getElementById('chatBody');
-        const chatInput = document.getElementById('chatInput');
-        const chatSendBtn = document.getElementById('chatSendBtn');
-        const chatInputRow = document.getElementById('chatInputRow');
-        const chatSettingsBtn = document.getElementById('chatSettingsBtn');
-        const chatSettingsPanel = document.getElementById('chatSettingsPanel');
-        const chatApiKeyInput = document.getElementById('chatApiKeyInput');
-        const chatModelSelect = document.getElementById('chatModelSelect');
-        const chatSaveKeyBtn = document.getElementById('chatSaveKeyBtn');
-        const chatClearKeyBtn = document.getElementById('chatClearKeyBtn');
-        const chatModelLabel = document.getElementById('chatModelLabel');
-
-        let chatHistory = []; // { role, content } — API is stateless, we resend this each call
-        let apiKey = localStorage.getItem('zyen_deepseek_key') || '';
-        let chatModel = localStorage.getItem('zyen_deepseek_model') || 'deepseek-v4-flash';
-        chatModelSelect.value = chatModel;
-
-        function refreshChatHeadLabel() {
-            chatModelLabel.textContent = apiKey ? chatModel : 'No API key set';
-        }
-        refreshChatHeadLabel();
-
-        function toggleChatPanel(show) {
-            chatPanel.classList.toggle('open', show);
-        }
-        chatFab.addEventListener('click', () => toggleChatPanel(true));
-        chatCloseBtn.addEventListener('click', () => toggleChatPanel(false));
-
-        function showSettings(show) {
-            chatSettingsPanel.style.display = show ? 'flex' : 'none';
-            chatBody.style.display = show ? 'none' : 'flex';
-            chatInputRow.style.display = show ? 'none' : 'flex';
-            if (show) chatApiKeyInput.value = apiKey;
-        }
-        chatSettingsBtn.addEventListener('click', () => showSettings(chatSettingsPanel.style.display === 'none'));
-
-        chatSaveKeyBtn.addEventListener('click', () => {
-            apiKey = chatApiKeyInput.value.trim();
-            chatModel = chatModelSelect.value;
-            localStorage.setItem('zyen_deepseek_key', apiKey);
-            localStorage.setItem('zyen_deepseek_model', chatModel);
-            refreshChatHeadLabel();
-            showSettings(false);
-            showToast(apiKey ? 'API key saved' : 'API key cleared');
-        });
-
-        chatClearKeyBtn.addEventListener('click', () => {
-            apiKey = '';
-            localStorage.removeItem('zyen_deepseek_key');
-            chatApiKeyInput.value = '';
-            refreshChatHeadLabel();
-            showToast('API key removed');
-        });
-
-        function addChatBubble(role, text) {
-            const div = document.createElement('div');
-            div.className = `chat-msg ${role}`;
-            div.textContent = text;
-            chatBody.appendChild(div);
-            chatBody.scrollTop = chatBody.scrollHeight;
-            return div;
-        }
-
-        async function sendChatMessage() {
-            const text = chatInput.value.trim();
-            if (!text) return;
-
-            if (!apiKey) {
-                addChatBubble('system', 'No API key set. Tap ⚙️ to add your DeepSeek API key first.');
-                showSettings(true);
+        // --- Export performance data as real CSV (from actual sampled chart data) ---
+        document.getElementById('exportItem').addEventListener('click', () => {
+            if (labels.length === 0) {
+                showToast('No data yet — wait a few seconds');
                 return;
             }
+            let csv = 'Time,FPS,Ping (ms)\n';
+            for (let i = 0; i < labels.length; i++) {
+                csv += `${labels[i]},${fpsData[i]},${pingData[i]}\n`;
+            }
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+            a.href = url;
+            a.download = `zyen-hub-performance-${stamp}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            showToast('CSV downloaded');
+        });
 
-            chatInput.value = '';
-            addChatBubble('user', text);
-            chatHistory.push({ role: 'user', content: text });
+        // --- Push notifications (real: Notification API, battery-low & storage-full alerts) ---
+        const notifSwitch = document.getElementById('notifSwitch');
+        const notifSub = document.getElementById('notifSub');
+        let notifEnabled = localStorage.getItem('zyen_notif') === '1';
+        let notifIntervalId = null;
+        let lastBattNotif = 0;
+        let lastStorageNotif = 0;
 
-            const thinkingBubble = addChatBubble('ai', '…');
-            chatSendBtn.disabled = true;
+        function updateNotifSub() {
+            const dict = translations[currentLang];
+            notifSub.textContent = notifEnabled ? dict.notifSubOn : dict.notifSubOff;
+        }
 
-            try {
-                const res = await fetch('https://api.deepseek.com/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: chatModel,
-                        messages: chatHistory,
-                        max_tokens: 1024
-                    })
-                });
+        async function checkNotifConditions() {
+            if (!notifEnabled || Notification.permission !== 'granted') return;
+            const now = Date.now();
 
-                if (!res.ok) {
-                    const errBody = await res.text();
-                    throw new Error(`${res.status}: ${errBody.slice(0, 200)}`);
-                }
+            // Real battery check
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    const pct = Math.round(battery.level * 100);
+                    if (pct <= 20 && !battery.charging && now - lastBattNotif > 10 * 60 * 1000) {
+                        new Notification('Zyen Hub — Low Battery', { body: `Battery at ${pct}%. Consider charging.`, icon: 'icon-192.png' });
+                        lastBattNotif = now;
+                    }
+                } catch (e) {}
+            }
 
-                const data = await res.json();
-                const reply = data.choices && data.choices[0] && data.choices[0].message
-                    ? data.choices[0].message.content
-                    : 'No response.';
-
-                thinkingBubble.textContent = reply;
-                chatHistory.push({ role: 'assistant', content: reply });
-            } catch (err) {
-                thinkingBubble.textContent = `⚠️ Error: ${err.message}`;
-                thinkingBubble.classList.add('system');
-            } finally {
-                chatSendBtn.disabled = false;
-                chatBody.scrollTop = chatBody.scrollHeight;
+            // Real storage check
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                try {
+                    const { usage, quota } = await navigator.storage.estimate();
+                    const pct = quota ? Math.round((usage / quota) * 100) : 0;
+                    if (pct >= 90 && now - lastStorageNotif > 10 * 60 * 1000) {
+                        new Notification('Zyen Hub — Storage Almost Full', { body: `Storage at ${pct}% usage.`, icon: 'icon-192.png' });
+                        lastStorageNotif = now;
+                    }
+                } catch (e) {}
             }
         }
 
-        chatSendBtn.addEventListener('click', sendChatMessage);
-        chatInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') sendChatMessage();
+        function applyNotifState() {
+            notifSwitch.classList.toggle('on', notifEnabled);
+            updateNotifSub();
+            if (notifIntervalId) clearInterval(notifIntervalId);
+            if (notifEnabled) {
+                notifIntervalId = setInterval(checkNotifConditions, 60 * 1000);
+                checkNotifConditions();
+            }
+        }
+
+        document.getElementById('notifItem').addEventListener('click', async () => {
+            if (!notifEnabled) {
+                if (!('Notification' in window)) {
+                    showToast('Notifications not supported on this browser');
+                    return;
+                }
+                const perm = await Notification.requestPermission();
+                if (perm !== 'granted') {
+                    showToast('Notification permission denied');
+                    return;
+                }
+            }
+            notifEnabled = !notifEnabled;
+            localStorage.setItem('zyen_notif', notifEnabled ? '1' : '0');
+            applyNotifState();
+            showToast(notifEnabled ? 'Notifications enabled' : 'Notifications disabled');
         });
+        applyNotifState();
     </script>
 
 </body>
