@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zyen Hub · Game Analytics</title>
+    <meta name="theme-color" content="#0a0b10" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <!-- Chart.js CDN for beautiful charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ---------- GLOBAL RESET & THEME ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        body {
+            background: #0a0b10;
+            color: #e8edf5;
+            padding: 24px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard {
+            max-width: 1440px;
+            width: 100%;
+        }
+
+        /* ---------- HEADER ---------- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .header h1 span {
+            font-weight: 300;
+            color: #8b8fa3;
+            -webkit-text-fill-color: #8b8fa3;
+        }
+
+        .live-badge {
+            background: #1e1f2b;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #2d2e3f;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .install-btn {
+            display: none;
+            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
+            color: #0a0b10;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ---------- KPI CARDS ---------- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .kpi-card {
+            background: #13141c;
+            border: 1px solid #262837;
+            border-radius: 20px;
+            padding: 20px 18px;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .kpi-card:hover {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 20px rgba(108, 92, 231, 0.08);
+        }
+
+        .kpi-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #898dab;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .kpi-sub {
+            font-size: 14px;
+            font-weight: 400;
+            color: #6b708a;
+            margin-left: 4px;
+        }
+
+        .kpi-status {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 40px;
+            margin-top: 8px;
+        }
+
+        .status-good { background: #10b98120; color: #10b981; }
+        .status-warn { background: #f59e0b20; color: #f59e0b; }
+        .status-danger { background: #ef444420; color: #ef4444; }
+        .status-na { background: #6b708a20; color: #6b708a; }
+
+        /* ---------- CHART SECTION ---------- */
+        .chart-container {
+            background: #13141c;
+            border: 1px solid #262837;
+            border-radius: 24px;
+            padding: 24px 20px 16px;
+            margin-bottom: 28px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .chart-header h3 { font-weight: 600; font-size: 18px; }
+        .chart-header h3 small { font-weight: 400; color: #6b708a; font-size: 14px; margin-left: 10px; }
+
+        .chart-wrapper { position: relative; height: 240px; }
+
+        /* ---------- GAME ANALYST (MATCH HISTORY) ---------- */
+        .analyst-section {
+            background: #13141c;
+            border: 1px solid #262837;
+            border-radius: 24px;
+            padding: 24px 20px;
+            margin-bottom: 28px;
+        }
+
+        .analyst-section h3 { font-weight: 600; font-size: 18px; margin-bottom: 16px; }
+        .analyst-section h3 small { font-weight: 400; color: #6b708a; font-size: 14px; margin-left: 10px; }
+
+        .match-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .match-table thead th {
+            text-align: left;
+            padding: 12px 8px 10px 0;
+            color: #6b708a;
+            font-weight: 500;
+            border-bottom: 1px solid #262837;
+            letter-spacing: 0.3px;
+        }
+        .match-table tbody td { padding: 14px 8px 14px 0; border-bottom: 1px solid #1c1d2a; }
+        .match-table tbody tr:last-child td { border-bottom: none; }
+
+        .badge-win { background: #10b98120; color: #10b981; padding: 2px 14px; border-radius: 40px; font-weight: 600; font-size: 12px; }
+        .badge-loss { background: #ef444420; color: #ef4444; padding: 2px 14px; border-radius: 40px; font-weight: 600; font-size: 12px; }
+        .agent-tag { background: #2d2e3f; padding: 2px 12px; border-radius: 40px; font-size: 12px; font-weight: 500; }
+
+        /* ---------- SYSTEM RESOURCES ---------- */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+        }
+
+        .resource-item { background: #0e0f16; border-radius: 16px; padding: 16px 18px; border: 1px solid #1f202d; }
+        .resource-item .label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .resource-item .label span:last-child { color: #a5a9c4; font-weight: 600; }
+
+        .progress-track { width: 100%; height: 6px; background: #242637; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+
+        .fill-purple { background: linear-gradient(90deg, #7c6cf0, #a78bfa); }
+        .fill-green { background: linear-gradient(90deg, #10b981, #34d399); }
+        .fill-orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+        .data-note {
+            font-size: 12px;
+            color: #565a72;
+            margin-top: 14px;
+            line-height: 1.5;
+        }
+
+        /* ---------- TURBO PANEL (slide-out toolbar) ---------- */
+        .turbo-fab {
+            position: fixed;
+            left: 18px;
+            bottom: 18px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
+            border: none;
+            box-shadow: 0 4px 18px rgba(108, 92, 231, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .turbo-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 1001;
+        }
+        .turbo-backdrop.open { opacity: 1; pointer-events: auto; }
+
+        .turbo-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            max-width: 85vw;
+            background: #16171f;
+            border-right: 1px solid #262837;
+            transform: translateX(-100%);
+            transition: transform 0.28s ease;
+            z-index: 1002;
+            padding: 20px 16px;
+            overflow-y: auto;
+        }
+        .turbo-panel.open { transform: translateX(0); }
+
+        .turbo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .turbo-header .brand {
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .turbo-close {
+            background: none;
+            border: none;
+            color: #6b708a;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .turbo-list-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .turbo-list-item:hover { background: #1e1f2b; }
+        .turbo-list-item .ic {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #1e1f2b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .turbo-list-item .txt { flex: 1; font-size: 14px; font-weight: 500; }
+        .turbo-list-item .sub { font-size: 11px; color: #6b708a; margin-top: 2px; }
+
+        .turbo-switch {
+            width: 38px;
+            height: 22px;
+            border-radius: 40px;
+            background: #2d2e3f;
+            position: relative;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .turbo-switch.on { background: #6c5ce7; }
+        .turbo-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e8edf5;
+            transition: transform 0.2s;
+        }
+        .turbo-switch.on::after { transform: translateX(16px); }
+
+        .turbo-boost-btn {
+            width: 100%;
+            margin: 16px 0;
+            padding: 13px;
+            border-radius: 14px;
+            border: 1px solid #2d2e3f;
+            background: #1e1f2b;
+            color: #a78bfa;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .turbo-boost-btn.active {
+            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
+            color: #0a0b10;
+            border-color: transparent;
+        }
+
+        .turbo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .turbo-grid-item {
+            background: #1e1f2b;
+            border-radius: 14px;
+            padding: 12px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .turbo-grid-item.on { border-color: #6c5ce7; background: #23243a; }
+        .turbo-grid-item .ic { font-size: 18px; }
+        .turbo-grid-item .lbl { font-size: 10px; color: #a5a9c4; text-align: center; line-height: 1.2; }
+
+        .turbo-toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #1e1f2b;
+            border: 1px solid #2d2e3f;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.25s;
+            z-index: 1003;
+        }
+        .turbo-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ---------- CHAT AI ---------- */
+        .chat-fab {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #13141c;
+            border: 1px solid #262837;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .chat-panel {
+            position: fixed;
+            right: 18px;
+            bottom: 82px;
+            width: 340px;
+            max-width: 90vw;
+            height: 480px;
+            max-height: 70vh;
+            background: #13141c;
+            border: 1px solid #262837;
+            border-radius: 20px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1002;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .chat-panel.open { display: flex; }
+
+        .chat-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #262837;
+            flex-shrink: 0;
+        }
+        .chat-head .title { font-weight: 700; font-size: 14px; }
+        .chat-head .title small { display: block; font-weight: 400; color: #6b708a; font-size: 11px; margin-top: 2px; }
+        .chat-head-btns { display: flex; gap: 8px; }
+        .chat-icon-btn {
+            background: #1e1f2b;
+            border: none;
+            color: #a5a9c4;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-msg { max-width: 85%; padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+        .chat-msg.user { align-self: flex-end; background: linear-gradient(135deg, #a78bfa, #6c5ce7); color: #0a0b10; border-bottom-right-radius: 4px; }
+        .chat-msg.ai { align-self: flex-start; background: #1e1f2b; border-bottom-left-radius: 4px; }
+        .chat-msg.system { align-self: center; color: #6b708a; font-size: 11px; text-align: center; }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid #262837;
+            flex-shrink: 0;
+        }
+        .chat-input-row input {
+            flex: 1;
+            background: #1e1f2b;
+            border: 1px solid #2d2e3f;
+            border-radius: 40px;
+            padding: 10px 16px;
+            color: #e8edf5;
+            font-size: 13px;
+            outline: none;
+        }
+        .chat-input-row button {
+            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
+            border: none;
+            color: #0a0b10;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            font-size: 15px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .chat-input-row button:disabled { opacity: 0.5; }
+
+        .chat-settings {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+        .chat-settings label { font-size: 12px; color: #a5a9c4; }
+        .chat-settings input, .chat-settings select {
+            background: #1e1f2b;
+            border: 1px solid #2d2e3f;
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #e8edf5;
+            font-size: 13px;
+            outline: none;
+        }
+        .chat-settings .save-btn {
+            background: linear-gradient(135deg, #a78bfa, #6c5ce7);
+            border: none;
+            color: #0a0b10;
+            font-weight: 700;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .chat-settings .note { font-size: 11px; color: #565a72; line-height: 1.5; }
+        .chat-settings .clear-key { background: none; border: 1px solid #2d2e3f; color: #ef4444; padding: 8px; border-radius: 10px; font-size: 12px; cursor: pointer; }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 700px) {
+            body { padding: 16px; }
+            .header h1 { font-size: 22px; }
+            .kpi-value { font-size: 26px; }
+            .match-table { font-size: 12px; }
+            .match-table thead th, .match-table tbody td { padding: 10px 4px 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+
+        <!-- HEADER -->
+        <div class="header">
+            <h1>🎮 Zyen Hub <span>· Game Analytics</span></h1>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="install-btn" id="installBtn">⬇ Install App</button>
+                <div class="live-badge">
+                    <span class="live-dot"></span>
+                    <span>Live Device Data</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI CARDS -->
+        <div class="kpi-grid" id="kpiGrid">
+            <div class="kpi-card">
+                <div class="kpi-label">📊 FPS (this page)</div>
+                <div class="kpi-value" id="fpsValue">-- <span class="kpi-sub">fps</span></div>
+                <span class="kpi-status status-na" id="fpsStatus">Measuring…</span>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">🌐 Ping (real)</div>
+                <div class="kpi-value" id="pingValue">-- <span class="kpi-sub">ms</span></div>
+                <span class="kpi-status status-na" id="pingStatus">Measuring…</span>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">🔋 Battery</div>
+                <div class="kpi-value" id="battValue">-- <span class="kpi-sub">%</span></div>
+                <span class="kpi-status status-na" id="battStatus">Checking…</span>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">🧠 Device Memory</div>
+                <div class="kpi-value" id="memValue">-- <span class="kpi-sub">GB</span></div>
+                <span class="kpi-status status-na" id="memStatus">Checking…</span>
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>📈 Performance Over Time <small>Real FPS &amp; Ping</small></h3>
+                <span style="font-size:13px; color:#6b708a;">Last 30 samples</span>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- GAME ANALYST (MATCH HISTORY) -->
+        <div class="analyst-section">
+            <h3>⚔️ Match Analyst <small>Example data — not connected to a game yet</small></h3>
+            <table class="match-table">
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Agent</th>
+                        <th>K / D / A</th>
+                        <th>Duration</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody id="matchBody"></tbody>
+            </table>
+        </div>
+
+        <!-- SYSTEM RESOURCES -->
+        <div class="resources-grid">
+            <div class="resource-item">
+                <div class="label"><span>🔋 Battery Level</span><span id="battFillLabel">--%</span></div>
+                <div class="progress-track"><div class="progress-fill fill-purple" id="battFill" style="width:0%;"></div></div>
+            </div>
+            <div class="resource-item">
+                <div class="label"><span>💾 Storage Used</span><span id="storageLabel">--%</span></div>
+                <div class="progress-track"><div class="progress-fill fill-green" id="storageFill" style="width:0%;"></div></div>
+            </div>
+            <div class="resource-item">
+                <div class="label"><span>📶 Network Speed</span><span id="netLabel">-- Mbps</span></div>
+                <div class="progress-track"><div class="progress-fill fill-orange" id="netFill" style="width:0%;"></div></div>
+            </div>
+        </div>
+
+        <p class="data-note">
+            FPS, Ping, Battery, Device Memory, Storage, and Network Speed are read live from your browser and device.
+            Some values may show "N/A" if your browser doesn't support that API (common on iOS Safari).
+            Match history above is sample data only.
+        </p>
+
+    </div>
+
+    <!-- TURBO PANEL -->
+    <button class="turbo-fab" id="turboFab" aria-label="Open Zyen Turbo">⚡</button>
+    <div class="turbo-backdrop" id="turboBackdrop"></div>
+    <div class="turbo-panel" id="turboPanel">
+        <div class="turbo-header">
+            <span class="brand">⚡ ZYEN TURBO</span>
+            <button class="turbo-close" id="turboClose">✕</button>
+        </div>
+
+        <div class="turbo-list-item" id="autoClearItem">
+            <div class="ic">🧹</div>
+            <div class="txt">Clear cache automatically<div class="sub" id="autoClearSub">Off</div></div>
+            <div class="turbo-switch" id="autoClearSwitch"></div>
+        </div>
+
+        <div class="turbo-list-item" id="freeStorageItem">
+            <div class="ic">💾</div>
+            <div class="txt">Free up storage<div class="sub" id="storageSub">Checking usage…</div></div>
+        </div>
+
+        <div class="turbo-list-item" id="monitorItem">
+            <div class="ic">📊</div>
+            <div class="txt">Monitor performance<div class="sub">Jump to live chart</div></div>
+        </div>
+
+        <button class="turbo-boost-btn" id="turboBoostBtn">Boost</button>
+
+        <div class="turbo-grid">
+            <div class="turbo-grid-item" id="gridClearMem">
+                <div class="ic">🔄</div>
+                <div class="lbl">Clear<br/>Memory</div>
+            </div>
+            <div class="turbo-grid-item" id="gridTimer">
+                <div class="ic">⏱️</div>
+                <div class="lbl" id="timerLbl">Timer</div>
+            </div>
+            <div class="turbo-grid-item" id="gridDnd">
+                <div class="ic">🌙</div>
+                <div class="lbl">DND</div>
+            </div>
+            <div class="turbo-grid-item" id="gridSpeed">
+                <div class="ic">⚙️</div>
+                <div class="lbl" id="speedLbl">Normal</div>
+            </div>
+        </div>
+    </div>
+    <div class="turbo-toast" id="turboToast"></div>
+
+    <!-- CHAT AI -->
+    <button class="chat-fab" id="chatFab" aria-label="Open AI Chat">💬</button>
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-head">
+            <div class="title">🤖 Zyen AI <small id="chatModelLabel">Ask anything</small></div>
+            <div class="chat-head-btns">
+                <button class="chat-icon-btn" id="chatSettingsBtn" title="Settings">⚙️</button>
+                <button class="chat-icon-btn" id="chatCloseBtn" title="Close">✕</button>
+            </div>
+        </div>
+
+        <div class="chat-body" id="chatBody">
+            <div class="chat-msg system">Set your DeepSeek API key in ⚙️ settings to start chatting.</div>
+        </div>
+
+        <div class="chat-input-row" id="chatInputRow">
+            <input type="text" id="chatInput" placeholder="Ask anything…" />
+            <button id="chatSendBtn">➤</button>
+        </div>
+
+        <div class="chat-settings" id="chatSettingsPanel" style="display:none;">
+            <label>DeepSeek API Key</label>
+            <input type="password" id="chatApiKeyInput" placeholder="sk-..." autocomplete="off" />
+
+            <label>Model</label>
+            <select id="chatModelSelect">
+                <option value="deepseek-v4-flash">deepseek-v4-flash (fast, cheap)</option>
+                <option value="deepseek-v4-pro">deepseek-v4-pro (top reasoning)</option>
+            </select>
+
+            <button class="save-btn" id="chatSaveKeyBtn">Save</button>
+            <button class="clear-key" id="chatClearKeyBtn">Remove saved key</button>
+
+            <p class="note">
+                Your key is saved only in this browser's local storage — never sent anywhere except directly to
+                api.deepseek.com when you send a message. Don't share this file after entering your key
+                (localStorage stays on this device only, so this is just a precaution).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --------------------------------------------------------------
+        // 0. PWA INSTALL PROMPT
+        // --------------------------------------------------------------
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'inline-block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW registration failed', err));
+            });
+        }
+
+        // --------------------------------------------------------------
+        // 1. MOCK MATCH HISTORY (clearly labeled as sample data)
+        // --------------------------------------------------------------
+        const matches = [
+            { agent: 'Jett', k: 22, d: 8, a: 5, duration: '24:30', result: 'Win' },
+            { agent: 'Reyna', k: 15, d: 12, a: 7, duration: '18:15', result: 'Loss' },
+            { agent: 'Sage', k: 9, d: 4, a: 14, duration: '21:02', result: 'Win' },
+            { agent: 'Chamber', k: 18, d: 10, a: 3, duration: '19:47', result: 'Win' },
+            { agent: 'Neon', k: 7, d: 13, a: 6, duration: '16:20', result: 'Loss' }
+        ];
+
+        const matchBody = document.getElementById('matchBody');
+        matches.forEach((m, i) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>#${i + 1}</strong></td>
+                <td><span class="agent-tag">${m.agent}</span></td>
+                <td>${m.k} / ${m.d} / ${m.a}</td>
+                <td>${m.duration}</td>
+                <td><span class="badge-${m.result.toLowerCase()}">${m.result}</span></td>
+            `;
+            matchBody.appendChild(row);
+        });
+
+        // --------------------------------------------------------------
+        // 2. PERFORMANCE CHART (real FPS & Ping)
+        // --------------------------------------------------------------
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const MAX_POINTS = 30;
+        const labels = [];
+        const fpsData = [];
+        const pingData = [];
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'FPS',
+                        data: fpsData,
+                        borderColor: '#a78bfa',
+                        backgroundColor: 'rgba(167, 139, 250, 0.08)',
+                        borderWidth: 2.5,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#a78bfa',
+                        tension: 0.2,
+                        fill: true
+                    },
+                    {
+                        label: 'Ping (ms)',
+                        data: pingData,
+                        borderColor: '#34d399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.05)',
+                        borderWidth: 2.5,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#34d399',
+                        tension: 0.2,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#a5a9c4', boxWidth: 12, padding: 16, font: { size: 12 } } }
+                },
+                scales: {
+                    x: { grid: { color: '#1e1f2b', drawBorder: false }, ticks: { color: '#6b708a', maxTicksLimit: 10 } },
+                    y: { grid: { color: '#1e1f2b', drawBorder: false }, ticks: { color: '#6b708a' } }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+
+        function pushSample(fps, ping) {
+            const t = new Date();
+            const label = `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}`;
+            labels.push(label);
+            fpsData.push(fps);
+            pingData.push(ping);
+            if (labels.length > MAX_POINTS) {
+                labels.shift();
+                fpsData.shift();
+                pingData.shift();
+            }
+            chart.update('none');
+        }
+
+        // --------------------------------------------------------------
+        // 3. REAL FPS MEASUREMENT (actual rendering speed of this page)
+        // --------------------------------------------------------------
+        let frameCount = 0;
+        let lastFpsCheck = performance.now();
+        let currentFps = 0;
+
+        function fpsLoop(now) {
+            frameCount++;
+            if (now - lastFpsCheck >= 1000) {
+                currentFps = Math.round((frameCount * 1000) / (now - lastFpsCheck));
+                frameCount = 0;
+                lastFpsCheck = now;
+
+                document.getElementById('fpsValue').innerHTML = `${currentFps} <span class="kpi-sub">fps</span>`;
+                const fpsStatus = document.getElementById('fpsStatus');
+                if (currentFps >= 50) { fpsStatus.textContent = 'Smooth'; fpsStatus.className = 'kpi-status status-good'; }
+                else if (currentFps >= 30) { fpsStatus.textContent = 'Moderate'; fpsStatus.className = 'kpi-status status-warn'; }
+                else { fpsStatus.textContent = 'Low'; fpsStatus.className = 'kpi-status status-danger'; }
+            }
+            requestAnimationFrame(fpsLoop);
+        }
+        requestAnimationFrame(fpsLoop);
+
+        // --------------------------------------------------------------
+        // 4. REAL PING MEASUREMENT (actual network round-trip time)
+        // --------------------------------------------------------------
+        async function measurePing() {
+            const start = performance.now();
+            try {
+                await fetch('https://www.gstatic.com/generate_204', { mode: 'no-cors', cache: 'no-store' });
+            } catch (e) {
+                // request still measures time even if it fails to complete cleanly
+            }
+            return Math.round(performance.now() - start);
+        }
+
+        async function updatePing() {
+            const ping = await measurePing();
+            document.getElementById('pingValue').innerHTML = `${ping} <span class="kpi-sub">ms</span>`;
+            const pingStatus = document.getElementById('pingStatus');
+            if (ping < 60) { pingStatus.textContent = 'Excellent'; pingStatus.className = 'kpi-status status-good'; }
+            else if (ping < 150) { pingStatus.textContent = 'Good'; pingStatus.className = 'kpi-status status-warn'; }
+            else { pingStatus.textContent = 'High'; pingStatus.className = 'kpi-status status-danger'; }
+            return ping;
+        }
+
+        // --------------------------------------------------------------
+        // 5. BATTERY (real, if browser supports it)
+        // --------------------------------------------------------------
+        function setNA(valueId, statusId, label) {
+            document.getElementById(valueId).innerHTML = `N/A`;
+            const el = document.getElementById(statusId);
+            if (el) { el.textContent = label || 'Unsupported'; el.className = 'kpi-status status-na'; }
+        }
+
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then((battery) => {
+                function renderBattery() {
+                    const pct = Math.round(battery.level * 100);
+                    document.getElementById('battValue').innerHTML = `${pct} <span class="kpi-sub">%</span>`;
+                    const status = document.getElementById('battStatus');
+                    status.textContent = battery.charging ? 'Charging' : (pct < 20 ? 'Low' : 'On battery');
+                    status.className = `kpi-status ${battery.charging ? 'status-good' : pct < 20 ? 'status-danger' : 'status-warn'}`;
+
+                    document.getElementById('battFillLabel').textContent = pct + '%';
+                    document.getElementById('battFill').style.width = pct + '%';
+                }
+                renderBattery();
+                battery.addEventListener('levelchange', renderBattery);
+                battery.addEventListener('chargingchange', renderBattery);
+            }).catch(() => {
+                setNA('battValue', 'battStatus');
+                document.getElementById('battFillLabel').textContent = 'N/A';
+            });
+        } else {
+            setNA('battValue', 'battStatus');
+            document.getElementById('battFillLabel').textContent = 'N/A';
+        }
+
+        // --------------------------------------------------------------
+        // 6. DEVICE MEMORY (real, approximate — Chrome/Edge/Android only)
+        // --------------------------------------------------------------
+        if ('deviceMemory' in navigator) {
+            const gb = navigator.deviceMemory;
+            document.getElementById('memValue').innerHTML = `${gb} <span class="kpi-sub">GB</span>`;
+            const memStatus = document.getElementById('memStatus');
+            memStatus.textContent = 'Detected';
+            memStatus.className = 'kpi-status status-good';
+        } else {
+            setNA('memValue', 'memStatus');
+        }
+
+        // --------------------------------------------------------------
+        // 7. STORAGE USAGE (real, via Storage API)
+        // --------------------------------------------------------------
+        async function updateStorage() {
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                try {
+                    const { usage, quota } = await navigator.storage.estimate();
+                    const pct = quota ? Math.round((usage / quota) * 100) : 0;
+                    document.getElementById('storageLabel').textContent = pct + '%';
+                    document.getElementById('storageFill').style.width = pct + '%';
+                } catch (e) {
+                    document.getElementById('storageLabel').textContent = 'N/A';
+                }
+            } else {
+                document.getElementById('storageLabel').textContent = 'N/A';
+            }
+        }
+        updateStorage();
+
+        // --------------------------------------------------------------
+        // 8. NETWORK INFO (real — Chrome/Edge/Android only, not iOS Safari)
+        // --------------------------------------------------------------
+        function updateNetwork() {
+            const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (conn) {
+                const downlink = conn.downlink || 0; // Mbps estimate
+                const type = conn.effectiveType || 'unknown';
+                document.getElementById('netLabel').textContent = `${downlink} Mbps (${type})`;
+                const pct = Math.min(100, Math.round((downlink / 20) * 100)); // scale against a 20 Mbps reference
+                document.getElementById('netFill').style.width = pct + '%';
+                conn.addEventListener && conn.addEventListener('change', updateNetwork);
+            } else {
+                document.getElementById('netLabel').textContent = 'N/A';
+            }
+        }
+        updateNetwork();
+
+        // --------------------------------------------------------------
+        // 9. LOOP: sample ping every 2s and push to chart alongside FPS
+        // --------------------------------------------------------------
+        let samplingPaused = false;
+        let sampleIntervalMs = 2000;
+        let sampleIntervalId = null;
+
+        async function sampleLoop() {
+            if (samplingPaused) return;
+            const ping = await updatePing();
+            pushSample(currentFps, ping);
+            updateStorage();
+        }
+
+        function restartSampleLoop() {
+            if (sampleIntervalId) clearInterval(sampleIntervalId);
+            sampleIntervalId = setInterval(sampleLoop, sampleIntervalMs);
+        }
+
+        setTimeout(sampleLoop, 500);
+        restartSampleLoop();
+
+        // ================================================================
+        // TURBO PANEL LOGIC (all actions below are real, not decorative)
+        // ================================================================
+        const turboFab = document.getElementById('turboFab');
+        const turboPanel = document.getElementById('turboPanel');
+        const turboBackdrop = document.getElementById('turboBackdrop');
+        const turboClose = document.getElementById('turboClose');
+        const turboToast = document.getElementById('turboToast');
+
+        function showToast(msg) {
+            turboToast.textContent = msg;
+            turboToast.classList.add('show');
+            setTimeout(() => turboToast.classList.remove('show'), 2200);
+        }
+
+        function openPanel() {
+            turboPanel.classList.add('open');
+            turboBackdrop.classList.add('open');
+            refreshStorageSub();
+        }
+        function closePanel() {
+            turboPanel.classList.remove('open');
+            turboBackdrop.classList.remove('open');
+        }
+        turboFab.addEventListener('click', openPanel);
+        turboClose.addEventListener('click', closePanel);
+        turboBackdrop.addEventListener('click', closePanel);
+
+        // --- Auto-clear cache toggle (real: periodically clears SW cache) ---
+        let autoClearEnabled = localStorage.getItem('zyen_autoclear') === '1';
+        let autoClearIntervalId = null;
+        const autoClearSwitch = document.getElementById('autoClearSwitch');
+        const autoClearSub = document.getElementById('autoClearSub');
+
+        function applyAutoClearState() {
+            autoClearSwitch.classList.toggle('on', autoClearEnabled);
+            autoClearSub.textContent = autoClearEnabled ? 'On · every 5 min' : 'Off';
+            if (autoClearIntervalId) clearInterval(autoClearIntervalId);
+            if (autoClearEnabled) {
+                autoClearIntervalId = setInterval(() => clearCaches(true), 5 * 60 * 1000);
+            }
+        }
+        document.getElementById('autoClearItem').addEventListener('click', () => {
+            autoClearEnabled = !autoClearEnabled;
+            localStorage.setItem('zyen_autoclear', autoClearEnabled ? '1' : '0');
+            applyAutoClearState();
+        });
+        applyAutoClearState();
+
+        // --- Free up storage (real: clears the service worker Cache Storage) ---
+        async function refreshStorageSub() {
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                try {
+                    const { usage } = await navigator.storage.estimate();
+                    document.getElementById('storageSub').textContent = `Using ${(usage / 1024 / 1024).toFixed(1)} MB`;
+                } catch (e) {
+                    document.getElementById('storageSub').textContent = 'Unavailable';
+                }
+            } else {
+                document.getElementById('storageSub').textContent = 'Unavailable';
+            }
+        }
+
+        async function clearCaches(silent) {
+            let freedMsg = 'Cache cleared';
+            try {
+                if ('caches' in window) {
+                    const before = 'storage' in navigator ? (await navigator.storage.estimate()).usage : 0;
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map((k) => caches.delete(k)));
+                    if ('storage' in navigator) {
+                        const after = (await navigator.storage.estimate()).usage;
+                        const freedMb = Math.max(0, (before - after) / 1024 / 1024).toFixed(1);
+                        freedMsg = `Freed ~${freedMb} MB`;
+                    }
+                }
+            } catch (e) {
+                freedMsg = 'Nothing to clear';
+            }
+            updateStorage();
+            refreshStorageSub();
+            if (!silent) showToast(freedMsg);
+        }
+        document.getElementById('freeStorageItem').addEventListener('click', () => clearCaches(false));
+
+        // --- Monitor performance: scroll to the real live chart ---
+        document.getElementById('monitorItem').addEventListener('click', () => {
+            document.querySelector('.chart-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            closePanel();
+        });
+
+        // --- Boost: reduces real network calls + sampling frequency ---
+        let boosted = false;
+        const boostBtn = document.getElementById('turboBoostBtn');
+        boostBtn.addEventListener('click', () => {
+            boosted = !boosted;
+            boostBtn.classList.toggle('active', boosted);
+            boostBtn.textContent = boosted ? 'Boosted ✓' : 'Boost';
+            if (boosted) {
+                sampleIntervalMs = 6000; // fewer network pings = real reduction in resource use
+                showToast('Boost on — fewer background network calls');
+            } else {
+                sampleIntervalMs = speedMode === 'fast' ? 1000 : speedMode === 'slow' ? 5000 : 2000;
+                showToast('Boost off');
+            }
+            restartSampleLoop();
+        });
+
+        // --- Grid: Clear Memory (real: reloads the page, releasing JS heap) ---
+        document.getElementById('gridClearMem').addEventListener('click', () => {
+            showToast('Clearing memory…');
+            setTimeout(() => location.reload(), 400);
+        });
+
+        // --- Grid: Timer (real: tracks actual session duration) ---
+        const sessionStart = performance.now();
+        const timerLbl = document.getElementById('timerLbl');
+        let timerShown = false;
+        function updateTimerLabel() {
+            const secs = Math.floor((performance.now() - sessionStart) / 1000);
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            timerLbl.textContent = `${m}:${String(s).padStart(2, '0')}`;
+        }
+        document.getElementById('gridTimer').addEventListener('click', () => {
+            timerShown = !timerShown;
+            document.getElementById('gridTimer').classList.toggle('on', timerShown);
+            if (timerShown) {
+                updateTimerLabel();
+                window.zyenTimerInterval = setInterval(updateTimerLabel, 1000);
+            } else {
+                clearInterval(window.zyenTimerInterval);
+                timerLbl.textContent = 'Timer';
+            }
+        });
+
+        // --- Grid: DND (real: pauses all live network sampling) ---
+        const liveBadgeText = document.querySelector('.live-badge span:last-child');
+        document.getElementById('gridDnd').addEventListener('click', () => {
+            samplingPaused = !samplingPaused;
+            document.getElementById('gridDnd').classList.toggle('on', samplingPaused);
+            liveBadgeText.textContent = samplingPaused ? 'Paused' : 'Live Device Data';
+            showToast(samplingPaused ? 'Live updates paused' : 'Live updates resumed');
+        });
+
+        // --- Grid: Speed (real: changes actual sampling interval) ---
+        let speedMode = 'normal';
+        const speedLbl = document.getElementById('speedLbl');
+        document.getElementById('gridSpeed').addEventListener('click', () => {
+            speedMode = speedMode === 'normal' ? 'fast' : speedMode === 'fast' ? 'slow' : 'normal';
+            speedLbl.textContent = speedMode === 'fast' ? 'Fast' : speedMode === 'slow' ? 'Slow' : 'Normal';
+            if (!boosted) {
+                sampleIntervalMs = speedMode === 'fast' ? 1000 : speedMode === 'slow' ? 5000 : 2000;
+                restartSampleLoop();
+            }
+            showToast(`Update speed: ${speedLbl.textContent}`);
+        });
+
+        // ================================================================
+        // CHAT AI (DeepSeek API)
+        // ================================================================
+        const chatFab = document.getElementById('chatFab');
+        const chatPanel = document.getElementById('chatPanel');
+        const chatCloseBtn = document.getElementById('chatCloseBtn');
+        const chatBody = document.getElementById('chatBody');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+        const chatInputRow = document.getElementById('chatInputRow');
+        const chatSettingsBtn = document.getElementById('chatSettingsBtn');
+        const chatSettingsPanel = document.getElementById('chatSettingsPanel');
+        const chatApiKeyInput = document.getElementById('chatApiKeyInput');
+        const chatModelSelect = document.getElementById('chatModelSelect');
+        const chatSaveKeyBtn = document.getElementById('chatSaveKeyBtn');
+        const chatClearKeyBtn = document.getElementById('chatClearKeyBtn');
+        const chatModelLabel = document.getElementById('chatModelLabel');
+
+        let chatHistory = []; // { role, content } — API is stateless, we resend this each call
+        let apiKey = localStorage.getItem('zyen_deepseek_key') || '';
+        let chatModel = localStorage.getItem('zyen_deepseek_model') || 'deepseek-v4-flash';
+        chatModelSelect.value = chatModel;
+
+        function refreshChatHeadLabel() {
+            chatModelLabel.textContent = apiKey ? chatModel : 'No API key set';
+        }
+        refreshChatHeadLabel();
+
+        function toggleChatPanel(show) {
+            chatPanel.classList.toggle('open', show);
+        }
+        chatFab.addEventListener('click', () => toggleChatPanel(true));
+        chatCloseBtn.addEventListener('click', () => toggleChatPanel(false));
+
+        function showSettings(show) {
+            chatSettingsPanel.style.display = show ? 'flex' : 'none';
+            chatBody.style.display = show ? 'none' : 'flex';
+            chatInputRow.style.display = show ? 'none' : 'flex';
+            if (show) chatApiKeyInput.value = apiKey;
+        }
+        chatSettingsBtn.addEventListener('click', () => showSettings(chatSettingsPanel.style.display === 'none'));
+
+        chatSaveKeyBtn.addEventListener('click', () => {
+            apiKey = chatApiKeyInput.value.trim();
+            chatModel = chatModelSelect.value;
+            localStorage.setItem('zyen_deepseek_key', apiKey);
+            localStorage.setItem('zyen_deepseek_model', chatModel);
+            refreshChatHeadLabel();
+            showSettings(false);
+            showToast(apiKey ? 'API key saved' : 'API key cleared');
+        });
+
+        chatClearKeyBtn.addEventListener('click', () => {
+            apiKey = '';
+            localStorage.removeItem('zyen_deepseek_key');
+            chatApiKeyInput.value = '';
+            refreshChatHeadLabel();
+            showToast('API key removed');
+        });
+
+        function addChatBubble(role, text) {
+            const div = document.createElement('div');
+            div.className = `chat-msg ${role}`;
+            div.textContent = text;
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            return div;
+        }
+
+        async function sendChatMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            if (!apiKey) {
+                addChatBubble('system', 'No API key set. Tap ⚙️ to add your DeepSeek API key first.');
+                showSettings(true);
+                return;
+            }
+
+            chatInput.value = '';
+            addChatBubble('user', text);
+            chatHistory.push({ role: 'user', content: text });
+
+            const thinkingBubble = addChatBubble('ai', '…');
+            chatSendBtn.disabled = true;
+
+            try {
+                const res = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: chatModel,
+                        messages: chatHistory,
+                        max_tokens: 1024
+                    })
+                });
+
+                if (!res.ok) {
+                    const errBody = await res.text();
+                    throw new Error(`${res.status}: ${errBody.slice(0, 200)}`);
+                }
+
+                const data = await res.json();
+                const reply = data.choices && data.choices[0] && data.choices[0].message
+                    ? data.choices[0].message.content
+                    : 'No response.';
+
+                thinkingBubble.textContent = reply;
+                chatHistory.push({ role: 'assistant', content: reply });
+            } catch (err) {
+                thinkingBubble.textContent = `⚠️ Error: ${err.message}`;
+                thinkingBubble.classList.add('system');
+            } finally {
+                chatSendBtn.disabled = false;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }
+
+        chatSendBtn.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+    </script>
+
+</body>
+</html>
